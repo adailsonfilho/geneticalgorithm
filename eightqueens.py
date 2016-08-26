@@ -1,5 +1,6 @@
 from geneticsalgorithm import ga
 import numpy as np
+import ipdb
 
 
 #  population
@@ -29,7 +30,7 @@ def fitness(invididual):
 
 #  crossover_prob
 
-crossover_prob = 0.98
+crossover_prob = 1
 
 #  mutation_prob
 
@@ -38,19 +39,36 @@ mutation_prob = 0.5
 #  crossover
 def crossover(ind1, ind2):
 
-	opts = list(range(8))
-	perm = np.random.choice(opts,size=4,replace= False)
+	cut = np.random.randint(1,len(ind1)-4)
+	ref = np.zeros(len(ind1)) != 0
+	new_ind = np.zeros(len(ind1)) - 1
 
-	ind1 = np.copy(ind1)
-	ind2 = np.copy(ind2)
+	i = 0
+	i1 = 0
+	i2 = 0
+	acc = 0
 
-	temp = None
-	for p in perm:
-		temp = ind1[p]
-		ind1[p] = ind2[p]
-		ind2[p] = temp
+	while i < len(ind1):
 
-	return [ind1, ind2]
+		if i < cut or acc == 4:
+			if not ref[ind1[i1]]:
+				new_ind[i] = ind1[i1]
+				ref[ind1[i1]] = True
+				i += 1
+				i1 += 1
+			else:
+				i1 += 1
+		elif not ref[ind2[i2]] and acc < 4:
+			new_ind[i] = ind2[i2]
+			ref[ind2[i2]] = True
+			i2 +=1
+			i +=1 
+			acc +=1
+		else:
+			i2 += 1
+
+
+	return [new_ind]
 
 
 #  mutation

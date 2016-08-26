@@ -82,7 +82,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			fit_val = fitness(individual)
 			fitness_values[i] = fit_val
 
-			if i == 0:
+			if best['individual'] == None:
 				best['individual'] = individual
 				best['fitness'] = fit_val
 
@@ -100,10 +100,13 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 		"""
 		calculate_all_fitness()
 
-		print('Best: ',best['fitness'])
+		mean =  np.mean(fitness_values)
+
+		print('Epoch:',epoch,'> Best: ',best['fitness'], '|| > Mean: ', mean )
 
 		#raffle crossover
-		if np.random.random() >= crossover_prob:
+		doCrossover = np.random.random()
+		if doCrossover  <= crossover_prob:
 
 			"""
 			Generate offspring 
@@ -120,19 +123,19 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			probs = []
 
 			#get sample of population for participate of selection process
-			candidates = np.random.choice(list(range(len(population))), size=progenitors_amount, replace=False)
+			candidates = np.random.choice(range(len(population)), size=progenitors_amount, replace=False)
 
 			#rank by fitness using pre computed values
 			candidates = sorted(candidates, key=lambda x: fitness_values[x])
 
 			#calculate prob of each one
-
 			fit_sum = sum(list(range(progenitors_amount+1)))
 
 			for i in range(progenitors_amount):
 				probs.append((i+1)/fit_sum)
 
 			for i in range(offsprings):
+
 				#randomly select 2 progenitors
 				progenitors = np.random.choice(candidates, size=2, replace=False, p = probs)
 
@@ -148,7 +151,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 				#raffle mutation
 				for new_individual in new_individuals:
 
-					if np.random.random() >= mutation_prob:
+					if np.random.random() <= mutation_prob:
 						mutated = mutation(new_individual)
 
 						if mutation_extra_individual:
@@ -167,12 +170,19 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			population_size = len(population)
 			population = np.concatenate((population, offspring))
 			fitness_values = np.concatenate((fitness_values,offspring_fitness_val))
-			population = sorted(enumerate(population), key=lambda x: fitness_values[x[0]], reverse=True)
+			population_rank = sorted(list(range(len(population))), key=lambda x: fitness_values[x], reverse=True)
+
+
+			new_population = []
+			for i in population_rank:
+				new_population.append(population[i])
+
+			new_population = np.array(new_population)
 
 			if elitist:
 				
 				#only the best survives
-				population = population[:population_size]
+				population = new_population[:population_size]
 
 				#warant that the next parent selection has not a fitness bias
 				np.random.shuffle(population)
@@ -180,15 +190,21 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			else:
 				#A fare surviving chance for every individual
 
+
 				#storage prob of each candidate survive
 				probs = []
 				
 				#calculate prob of each one
+				fit_sum = sum(list(range(len(new_population)+1)))
 
-				fit_sum = sum(list(range(len(population)+1)))
-
-				for i in range(len(population)):
+				for i in range(len(new_population)):
 					probs.append((i+1)/fit_sum)
 
+								
 				#randomly select who lives
-				population = np.random.choice(population, size=population_size, replace=False, p = probs)
+				indexes = np.random.choice(range(len(new_population)), size=population_size, replace=False, p = probs)
+				population = new_population[indexes];
+
+		epoch += 1
+
+	ipdb.set_trace()
