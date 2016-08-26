@@ -30,20 +30,35 @@ This project provides a general schema for Genetics Algorithms, allowing a devel
 
  - offsprings: number of offsprings
 
+ - progenitors_amount: amount of individuals considered in the wheel selection
+
  - elitist: True or False, defines if only the best one survives
 
 """
 
 def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation, max_epochs, offsprings, progenitors_amount, stop_if_reachs = None, objective="minimize", generational= False, mutation_extra_individual=False, elitist = True):
 
+	"""
+	CONTROL PARAMETTERS INITIALIZATION
+	"""
+
+	#Best individual found
+	best = {'individual': None, 'fitness': None}
+	epoch = 0
+	fitness_values = np.zeros(len(population))
 
 	#define if the algorithm achieved the objective
 	def objective_achieved():
 
-		if(best.fitness != None and stop_if_reachs != None):
-			return best['fitness'] >= stop_if_reachs	
+		if best['fitness'] is not None and stop_if_reachs is not None:
+			if objective == 'minimize':
+				return best['fitness'] <= stop_if_reachs
+			elif objective == 'maximize':
+				return best['fitness'] >= stop_if_reachs
+			
+			raise('given "objective" argument is invalid')
 
-		return false
+		return False
 
 
 	def bestOne(fit1, fit2):
@@ -65,15 +80,6 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 		raise "Objetive type Error!"
 
 
-	"""
-	CONTROL PARAMETTERS INITIALIZATION
-	"""
-
-	#Best individual found
-	best = {'individual': None, 'fitness': None}
-	epoch = 0
-	fitness_values = np.zeros(len(population))
-
 	#Population need to be inserted already initilized
 	def calculate_all_fitness():
 
@@ -82,7 +88,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			fit_val = fitness(individual)
 			fitness_values[i] = fit_val
 
-			if best['individual'] == None:
+			if best['individual'] is None:
 				best['individual'] = individual
 				best['fitness'] = fit_val
 
@@ -93,7 +99,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 	#simulate a do while around the fitness
 	calculate_all_fitness()
 
-	while epoch < max_epochs and objective_achieved:
+	while epoch < max_epochs and not objective_achieved():
 		
 		"""
 		Calculate fitness
@@ -102,7 +108,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 
 		mean =  np.mean(fitness_values)
 
-		print('Epoch:',epoch,'> Best: ',best['fitness'], '|| > Mean: ', mean )
+		print('Epoch:',epoch,'> Best: ', best['fitness'], '|| > Mean: ', mean )
 
 		#raffle crossover
 		doCrossover = np.random.random()
@@ -208,3 +214,5 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 		epoch += 1
 
 	ipdb.set_trace()
+
+	return best
