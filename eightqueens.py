@@ -1,7 +1,5 @@
 from geneticsalgorithm import ga
 import numpy as np
-import ipdb
-
 
 #  population
 population_size = 30 
