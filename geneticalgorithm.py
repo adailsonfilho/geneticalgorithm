@@ -36,7 +36,7 @@ This project provides a general schema for Genetics Algorithms, allowing a devel
 
 """
 
-def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation, max_epochs, offsprings, progenitors_amount, stop_if_reachs = None, objective="minimize", generational= False, mutation_extra_individual=False, elitist = True):
+def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation, max_epochs, offsprings, progenitors_amount, stop_if_reachs = None, objective="minimize", generational= False, mutation_extra_individual=False, elitist = True, each_individual = None, program_ends = None):
 
 	"""
 	CONTROL PARAMETTERS INITIALIZATION
@@ -95,6 +95,9 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 			if bestOne(fit_val, best['fitness']) == fit_val:
 				best['fitness'] = fit_val
 				best['individual'] = individual
+
+			if each_individual is not None:
+				each_individual(individual.copy(), fitness_values[i], epoch)
 
 	#simulate a do while around the fitness
 	calculate_all_fitness()
@@ -213,6 +216,7 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 
 		epoch += 1
 
-	ipdb.set_trace()
+	if program_ends is not None:
+		program_ends()
 
 	return best
