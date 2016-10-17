@@ -97,21 +97,23 @@ def ga (population, fitness, crossover_prob, mutation_prob, crossover, mutation,
 				best['individual'] = individual
 
 			if each_individual is not None:
-				each_individual(individual.copy(), fitness_values[i], epoch)
+				each_individual(population[i], fitness_values[i], epoch)
 
 	#simulate a do while around the fitness
 	calculate_all_fitness()
+	epoch += 1
 
 	while epoch < max_epochs and not objective_achieved():
 		
 		"""
 		Calculate fitness
 		"""
+
 		calculate_all_fitness()
 
 		mean =  np.mean(fitness_values)
 
-		print('Epoch:',epoch,'> Best: ', best['fitness'], '|| > Mean: ', mean )
+		print('Epoch:',epoch,'> Best: ', best['fitness'], '|| > Mean: ', mean)
 
 		#raffle crossover
 		doCrossover = np.random.random()
